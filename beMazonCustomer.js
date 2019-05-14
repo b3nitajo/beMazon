@@ -48,7 +48,7 @@ function showInventory() {
     
       console.log(res);
       printTable(res);
-      userOrder();
+      updateQty();
       //connection.end();
     });
 }
@@ -81,9 +81,11 @@ function orderMore(){
         message: "Add more items?"
       }
     ])
-    .then(function(answer) {
-      if(answer.needMore === true){
-          showInventory();
+    .then(function(addItems) {
+        console.log("passedTest1");
+      if(addItems.needMore === true){
+          console.log("passedTest2");
+        showInventory();
       }
       else{
         endOrder();
@@ -98,7 +100,10 @@ function endOrder(){
 //6. The app should then prompt users with two messages.
   // * The first should ask them the ID of the product they would like to buy.
   // * The second message should ask how many units of the product they would like to buy.
-function userOrder() {
+/*var itemOrded = "";
+var qtyOrded = "";
+
+function userOrder(itemOrded, qtyOrded) {
     // prompt for info about the item being put up for auction
     inquirer
       .prompt([
@@ -114,15 +119,74 @@ function userOrder() {
         }
       ])
       .then(function(answer) {
-        // call update database function with new quantity  
-        var updateProd = connection.query(function(err, res) {
-        var quanre = res.stock_quantity-parseInt(answer.quantity);
-        "UPDATE products SET stock_quantity=quanre WHERE item_id=parseInt(answer.item)"
-        }) 
-        orderMore(); 
+          itemOrdered = answer.item;
+          qtyOrdered = answer.quantity;
+        console.log('Ordered: ' + itemOrdered + ' Qty: ' + qtyOrdered);
+        updateQty(itemOrdered, qtyOrdered);
+    });
+}*/
+
+//update database w order details
+function updateQty(){
+    // query the database for all products
+    connection.query("SELECT * FROM products WHERE stock_quantity >= 0", function(err, results) {
+        if (err) throw err;
+        // once you have the items, prompt the user for which they'd like to bid on
+        inquirer
+        .prompt([
+        {
+            name: "item",
+            type: "number",
+            message: "What is the ID of the item you want to purchase?"
+        },
+        {
+            name: "quantity",
+            type: "number",
+            message: "How many do you want?"
+        }
+        ])
+        .then(function(answer) {
+            // get the information of the chosen item
+            var orderedProduct;
+            var remainQty;
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].item_id === answer.item) {
+                    orderedProduct = results[i].item_id;
+                    remainQty = results[i].stock_quantity - parseInt(answer.quantity);
+                }
+                else{
+                    console.log("Can't find that product, Try again");
+                    showInventory();
+                }
+            }
+    
+            // determine if bid was high enough
+            if (orderedProduct) {
+            // bid was high enough, so update db, let the user know, and start over
+                connection.query(
+                    "UPDATE products SET ? WHERE ?",
+                    [
+                        {
+                            stock_quantity: remainQty
+                        },
+                        {
+                            item_id: orderedProduct
+                        }
+                    ],
+                    function(error) {
+                        if (error) throw err;
+                        console.log("Order placed successfully!");
+                       // orderMore();
+                    }
+                );
+            }
+            else {
+            console.log("CheckoutError");
+          //  orderMore();
+            }
+        });
     });
 }
-
  /* function updateProduct(userProduct, userQuan) {
     console.log("Updating ordered Prod quantities...\n");
     var updateProd = connection.query(
