@@ -64,7 +64,7 @@ function startOrdering(){
     ])
     .then(function(answer) {
       if(answer.startOrder === true){
-          showInventory();
+        showInventory();
       }
       else{
         endOrder();
@@ -76,13 +76,13 @@ function orderMore(){
     inquirer
     .prompt([
       {
-        name: "orderMore",
+        name: "needMore",
         type: "confirm",
         message: "Add more items?"
       }
     ])
     .then(function(answer) {
-      if(answer.startOrder === true){
+      if(answer.needMore === true){
           showInventory();
       }
       else{
@@ -115,17 +115,11 @@ function userOrder() {
       ])
       .then(function(answer) {
         // call update database function with new quantity  
-        var updateProd = connection.query(
-        "UPDATE products SET ? WHERE ?",
-        [
-            {
-                item_id:  answer.item
-            },
-            {
-                stock_quantity: res.stock_quantity - answer.quantity
-            }
-        ]
-        )
+        var updateProd = connection.query(function(err, res) {
+        var quanre = res.stock_quantity-parseInt(answer.quantity);
+        "UPDATE products SET stock_quantity=quanre WHERE item_id=parseInt(answer.item)"
+        }) 
+        orderMore(); 
     });
 }
 
@@ -156,4 +150,4 @@ function userOrder() {
 
 //8. However, if your store _does_ have enough of the product, you should fulfill the customer's order.
  //  * This means updating the SQL database to reflect the remaining quantity.
- //  * Once the update goes through, show the customer the total cost of their purchase.
+ //  * Once the update goes through, show the customer the total cost of their purchase.*/
