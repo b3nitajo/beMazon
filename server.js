@@ -6,13 +6,29 @@
 //must be markdown type file https://guides.github.com/features/mastering-markdown/
 
 //require MySQL 
-
 //Inquirer npm packages
-
 //include screenshots, a gif, and/or a video of the app working 
 
 //include these screenshots in a `README.md` file.
 ///////This includes views of the prompts and the responses after their selection
+
+var mysql = require("mysql");
+var inquirer = require("inquirer");
+
+// create the connection information for the sql database
+var connection = mysql.createConnection({
+  host: "localhost",
+  // Your port
+  port: 3306
+});
+
+// connect to the mysql server and sql database
+connection.connect(function(err) {
+  if (err) throw err;
+  // run the start function after the connection is made to prompt the user
+  start();
+});
+
 
 //1. Create a MySQL Database called `bamazon`.
 
