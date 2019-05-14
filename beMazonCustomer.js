@@ -149,10 +149,14 @@ function updateQty(){
             // get the information of the chosen item
             var orderedProduct;
             var remainQty;
+            
             for (var i = 0; i < results.length; i++) {
-                if (results[i].item_id === answer.item) {
-                    orderedProduct = results[i].item_id;
+               if (results[i].item_id === answer.item) {
+                    orderedProduct = answer.item;
+                   // remainQty = parseInt(answer.quantity);
                     remainQty = results[i].stock_quantity - parseInt(answer.quantity);
+                    console.log(orderedProduct + '|' + remainQty);
+                    break;
                 }
                 else{
                     console.log("Can't find that product, Try again");
@@ -163,8 +167,13 @@ function updateQty(){
             // determine if bid was high enough
             if (orderedProduct) {
             // bid was high enough, so update db, let the user know, and start over
-                connection.query(
-                    "UPDATE products SET ? WHERE ?",
+                
+            const queryUpdate = "UPDATE products SET stock_quantity = " + remainQty + " WHERE item_id = " + orderedProduct;
+            console.log(queryUpdate);      
+            connection.query(queryUpdate, function(err, res) {
+                if (err) throw err;
+               // queryUpdate = queryUpdate;
+                   /* "UPDATE products SET stock_quantity = 2 WHERE item_id = 3",
                     [
                         {
                             stock_quantity: remainQty
@@ -172,11 +181,13 @@ function updateQty(){
                         {
                             item_id: orderedProduct
                         }
-                    ],
-                    function(error) {
+                    ],*/
+                   /* function(error) {
                         if (error) throw err;
+                        else{ 
                         console.log("Order placed successfully!");
-                       // orderMore();
+                        }
+                       // orderMore();*/
                     }
                 );
             }
