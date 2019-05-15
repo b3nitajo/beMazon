@@ -22,14 +22,9 @@ const {printTable} = require('console-table-printer');
 // create the connection information for the sql database
 var connection = beMazon_DB.createConnection({
   host: "localhost",
-  // port
   port: 3306,
-
-  // Your username
   user: "root",
-
-  // Your password
-  password: "BJ2019as!!",
+  password: "",
   database: "beMazon_DB"
 });
 
@@ -94,8 +89,8 @@ function orderMore(){
 }
 
 function endOrder(){
-      console.log("Thank you for shopping");
-      connection.end();
+    console.log("Thank you for shopping");
+    connection.end();
 }
 
 //update database w order details
