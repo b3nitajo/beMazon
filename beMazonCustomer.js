@@ -15,12 +15,12 @@
 // The products table have the following columns:
  //item_id, product_name, department_name, price, stock_quantity
 
-const beMazon_DB = require("mysql");
+const beMazon = require("mysql");
 const inquirer = require("inquirer");
 const {printTable} = require('console-table-printer');
 
 // create the connection information for the sql database
-var connection = beMazon_DB.createConnection({
+var beMazon_DB = beMazon.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
@@ -28,23 +28,22 @@ var connection = beMazon_DB.createConnection({
   database: "beMazon_DB"
 });
 
-// connect to the mysql server and sql database
-connection.connect(function(err) {
+
+// connect to mysql server and sql database
+beMazon_DB.connect(function(err) {
   if (err) throw err;
-  // run the start function after the connection is made to prompt the user
+  // Start ordering process to prompt the user
   startOrdering();
 });
 
 //show user current stock items
 function showInventory() {
     console.log("Selecting all products...\n");
-    connection.query("SELECT * FROM products WHERE stock_quantity >= 0", function(err, res) {
+    beMazon_DB.query("SELECT * FROM products WHERE stock_quantity >= 0", function(err, res) {
       if (err) throw err;
-    
       console.log(res);
       printTable(res);
       updateQty();
-      //connection.end();
     });
 }
 
@@ -90,13 +89,13 @@ function orderMore(){
 
 function endOrder(){
     console.log("Thank you for shopping");
-    connection.end();
+    beMazon_DB.end();
 }
 
 //update database w order details
 function updateQty(){
     // query the database for all products
-    connection.query("SELECT * FROM products WHERE stock_quantity >= 0", function(err, results) {
+    beMazon_DB.query("SELECT * FROM products WHERE stock_quantity >= 0", function(err, results) {
         if (err) throw err;
         // once you have the items, prompt the user for which they'd like to bid on
         inquirer
@@ -115,43 +114,34 @@ function updateQty(){
         .then(function(answer) {
             // get the information of the chosen item
             var orderedProduct;
-            var remainQty;
-            
+            var remainQty;   
             for (var i = 0; i < results.length; i++) {
                if (results[i].item_id === answer.item) {
                     orderedProduct = answer.item;
-                    remainQty = results[i].stock_quantity - parseInt(answer.quantity);
-                    console.log(orderedProduct + '|' + remainQty);
-                    break;
-                }
-                else{
-                    console.log("Can't find that product, Try again");
-                    showInventory();
+                    //check to see if there is stock
+                    if(results[i].stock_quantity >= parseInt(answer.quantity)){
+                        remainQty = results[i].stock_quantity - parseInt(answer.quantity);
+                    }
+                    //If cannot fulfill order
+                    else{
+                        remainQty = results[i].stock_quantity;
+                        console.log("Sorry, we can't fill your order, We have " + remainQty + " left.");
+                    }
                 }
             }
-    
             // when product is ordered
             if (orderedProduct) {      
-            const queryUpdate = "UPDATE products SET stock_quantity = " + remainQty + " WHERE item_id = " + orderedProduct;
-            console.log(queryUpdate);      
-            connection.query(queryUpdate, function(err, res) {
-                if (err) throw err;
-               
-                }
-                );
+                const queryUpdate = "UPDATE products SET stock_quantity = " + remainQty + " WHERE item_id = " + orderedProduct;
+                console.log(queryUpdate);      
+                beMazon_DB.query(queryUpdate, function(err, res) {
+                   if (err) throw err;
+                });
             }
             else {
-            console.log("CheckoutError");
-          //  orderMore();
+                console.log("Checkout Error");
             }
+            orderMore();
         });
     });
 }
  
-//7. Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
-
-  // * If not, the app should log a phrase like `Insufficient quantity!`, and then prevent the order from going through.
-
-//8. However, if your store _does_ have enough of the product, you should fulfill the customer's order.
- //  * This means updating the SQL database to reflect the remaining quantity.
- //  * Once the update goes through, show the customer the total cost of their purchase.*/
