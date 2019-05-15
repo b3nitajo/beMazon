@@ -97,34 +97,6 @@ function endOrder(){
       console.log("Thank you for shopping");
       connection.end();
 }
-//6. The app should then prompt users with two messages.
-  // * The first should ask them the ID of the product they would like to buy.
-  // * The second message should ask how many units of the product they would like to buy.
-/*var itemOrded = "";
-var qtyOrded = "";
-
-function userOrder(itemOrded, qtyOrded) {
-    // prompt for info about the item being put up for auction
-    inquirer
-      .prompt([
-        {
-          name: "item",
-          type: "number",
-          message: "What is the ID of the item you want to purchase?"
-        },
-        {
-          name: "quantity",
-          type: "number",
-          message: "How many do you want?"
-        }
-      ])
-      .then(function(answer) {
-          itemOrdered = answer.item;
-          qtyOrdered = answer.quantity;
-        console.log('Ordered: ' + itemOrdered + ' Qty: ' + qtyOrdered);
-        updateQty(itemOrdered, qtyOrdered);
-    });
-}*/
 
 //update database w order details
 function updateQty(){
@@ -153,7 +125,6 @@ function updateQty(){
             for (var i = 0; i < results.length; i++) {
                if (results[i].item_id === answer.item) {
                     orderedProduct = answer.item;
-                   // remainQty = parseInt(answer.quantity);
                     remainQty = results[i].stock_quantity - parseInt(answer.quantity);
                     console.log(orderedProduct + '|' + remainQty);
                     break;
@@ -164,31 +135,14 @@ function updateQty(){
                 }
             }
     
-            // determine if bid was high enough
-            if (orderedProduct) {
-            // bid was high enough, so update db, let the user know, and start over
-                
+            // when product is ordered
+            if (orderedProduct) {      
             const queryUpdate = "UPDATE products SET stock_quantity = " + remainQty + " WHERE item_id = " + orderedProduct;
             console.log(queryUpdate);      
             connection.query(queryUpdate, function(err, res) {
                 if (err) throw err;
-               // queryUpdate = queryUpdate;
-                   /* "UPDATE products SET stock_quantity = 2 WHERE item_id = 3",
-                    [
-                        {
-                            stock_quantity: remainQty
-                        },
-                        {
-                            item_id: orderedProduct
-                        }
-                    ],*/
-                   /* function(error) {
-                        if (error) throw err;
-                        else{ 
-                        console.log("Order placed successfully!");
-                        }
-                       // orderMore();*/
-                    }
+               
+                }
                 );
             }
             else {
@@ -198,27 +152,7 @@ function updateQty(){
         });
     });
 }
- /* function updateProduct(userProduct, userQuan) {
-    console.log("Updating ordered Prod quantities...\n");
-    var updateProd = connection.query(
-      "UPDATE products SET ? WHERE ?",
-      [
-        {
-            item_id:  userProduct
-        },
-        {
-            stock_quantity: res.stock_quantity - userProduct
-        }
-      ],
-      function(err, res) {
-        console.log(res.affectedRows + " products updated!\n");
-        // Call deleteProduct AFTER the UPDATE completes
-        orderMore();
-      }
-    );
-    // logs the actual query being run
-    console.log(updateProd.sql);
-  }
+ 
 //7. Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
 
   // * If not, the app should log a phrase like `Insufficient quantity!`, and then prevent the order from going through.
