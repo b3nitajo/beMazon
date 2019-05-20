@@ -15,22 +15,22 @@
 // The products table have the following columns:
  //item_id, product_name, department_name, price, stock_quantity
 
-const beMazon = require("mysql");
+const mysql = require("mysql");
 const inquirer = require("inquirer");
 const {printTable} = require('console-table-printer');
 
 // create the connection information for the sql database
-var beMazon_DB = beMazon.createConnection({
+var db_connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
-  password: "",
-  database: "beMazon_DB"
+  password: "BJ2019as!!",
+  database: "beMazon_db"
 });
 
 
 // connect to mysql server and sql database
-beMazon_DB.connect(function(err) {
+db_connection.connect(function(err) {
   if (err) throw err;
   // Start ordering process to prompt the user
   startOrdering();
@@ -38,12 +38,11 @@ beMazon_DB.connect(function(err) {
 
 //show user current stock items
 function showInventory() {
-    console.log("Selecting all products...\n");
-    beMazon_DB.query("SELECT * FROM products WHERE stock_quantity >= 0", function(err, res) {
+    console.log("Selecting all products in stock...\n");
+    db_connection.query("SELECT * FROM products WHERE stock_quantity > 0", function(err, res) {
       if (err) throw err;
-      console.log(res);
-      printTable(res);
-      updateQty();
+  //    console.log(res);
+      printTable(res);    
     });
 }
 
@@ -59,6 +58,7 @@ function startOrdering(){
     .then(function(answer) {
       if(answer.startOrder === true){
         showInventory();
+        updateQty();
       }
       else{
         endOrder();
@@ -72,14 +72,18 @@ function orderMore(){
       {
         name: "needMore",
         type: "confirm",
-        message: "Add more items?"
+        message: "Place a new order?"
       }
     ])
     .then(function(addItems) {
-        console.log("passedTest1");
+        //console.log("passedTest1");
       if(addItems.needMore === true){
-          console.log("passedTest2");
-        showInventory();
+        db_connection.query("SELECT * FROM products WHERE stock_quantity > 0", function(err, res) {
+          if (err) throw err;
+          console.log(res);
+          printTable(res);  
+          updateQty();
+        });
       }
       else{
         endOrder();
@@ -88,14 +92,17 @@ function orderMore(){
 }
 
 function endOrder(){
+  db_connection.query("SELECT * FROM products", function(err, res) {
+    if (err) throw err;
     console.log("Thank you for shopping");
-    beMazon_DB.end();
-}
+    db_connection.end();
+  }
+)};
 
 //update database w order details
 function updateQty(){
     // query the database for all products
-    beMazon_DB.query("SELECT * FROM products WHERE stock_quantity >= 0", function(err, results) {
+    db_connection.query("SELECT * FROM products WHERE stock_quantity > 0", function(err, results) {
         if (err) throw err;
         // once you have the items, prompt the user for which they'd like to bid on
         inquirer
@@ -120,7 +127,9 @@ function updateQty(){
                     orderedProduct = answer.item;
                     //check to see if there is stock
                     if(results[i].stock_quantity >= parseInt(answer.quantity)){
-                        remainQty = results[i].stock_quantity - parseInt(answer.quantity);
+                      remainQty = results[i].stock_quantity - parseInt(answer.quantity);
+                      var orderTotal = parseInt(answer.quantity) * results[i].price;
+                      console.log("Your order total is $" + orderTotal  + ". Thank you for shopping!");
                     }
                     //If cannot fulfill order
                     else{
@@ -133,12 +142,13 @@ function updateQty(){
             if (orderedProduct) {      
                 const queryUpdate = "UPDATE products SET stock_quantity = " + remainQty + " WHERE item_id = " + orderedProduct;
                 console.log(queryUpdate);      
-                beMazon_DB.query(queryUpdate, function(err, res) {
+                db_connection.query(queryUpdate, function(err, res) {
                    if (err) throw err;
+                  // printTable(res);
                 });
             }
             else {
-                console.log("Checkout Error");
+                console.log("We do not have that item. Select Y to try again");
             }
             orderMore();
         });
