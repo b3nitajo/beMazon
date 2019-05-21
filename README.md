@@ -13,7 +13,4 @@ Purchase products and get order totals while product's inventory updates accordi
 
 Once a product is out of stock, it will deactivate and become unorderable.
 
-<video width="320" height="240" controls>
-  <source src="recording.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+[Ready to beMazon!](beMazon.mp4)
