@@ -13,4 +13,17 @@ Purchase products and get order totals while product's inventory updates accordi
 
 Once a product is out of stock, it will deactivate and become unorderable.
 
-[Ready to beMazon!](beMazon.mp4)
+
+# Visual Example
+### Start Shopping![Description 1:Start Shopping](images/des_1.png?raw=true "des_1")
+
+
+### Select Product![Description 2:Select Product](images/des_2.png?raw=true "des_2")
+
+### Quantity not Available![Description 3:Cannot Produce Order](images/des_3.png?raw=true "des_3")
+
+
+### Sold Out, Unavailable to Order![Description 4:Sold Out](images/des_4.png?raw=true "des_4")
+
+### Finished Shopping
+![Description 5:Completed Shopping](images/des_5.png?raw=true "des_5")
